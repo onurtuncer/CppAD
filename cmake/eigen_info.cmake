@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-or-later
 # SPDX-FileCopyrightText: Bradley M. Bell <bradbell@seanet.com>
-# SPDX-FileContributor: 2003-24 Bradley M. Bell
+# SPDX-FileContributor: 2003-24 Bradley M. Bell, 2025 Onur Tuncer
 # ----------------------------------------------------------------------------
 # eigen_info()
 #
@@ -15,6 +15,31 @@
 # (should be empty becasuse eigen is a header only library).
 #
 # This macro may use variables with the name eigen_*
+
+if(WIN32)
+    message(STATUS "eigen_info.cmake: using direct include path for Eigen (MSVC override)")
+
+    if(NOT EIGEN3_INCLUDE_DIR)
+        set(EIGEN3_INCLUDE_DIR
+            "${CMAKE_SOURCE_DIR}/vendor/eigen"
+            CACHE PATH "Eigen3 include directory" FORCE
+        )
+    endif()
+
+    if(NOT EXISTS "${EIGEN3_INCLUDE_DIR}/Eigen/Dense")
+        message(FATAL_ERROR "Eigen not found at ${EIGEN3_INCLUDE_DIR}")
+    endif()
+
+    include_directories("${EIGEN3_INCLUDE_DIR}")
+
+    # ?? FIX: define macro so MSVC doesn't error on #if CPPAD_HAS_EIGEN
+    add_compile_definitions(CPPAD_HAS_EIGEN=1)
+
+    return()
+endif()
+
+
+
 MACRO(eigen_info)
    #
    # check for pkg-config
